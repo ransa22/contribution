@@ -1,23 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import { ethers } from "ethers";
 
 function App() {
+  const [account, setAccount] = useState("");
+  const [balance, setBalance] = useState("");
+
+  // Connect wallet
+  const connectWallet = async () => {
+    if (!window.ethereum) {
+      alert("Install MetaMask");
+      return;
+    }
+
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts",
+    });
+
+    setAccount(accounts[0]);
+
+    // Get balance
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const bal = await provider.getBalance(accounts[0]);
+    setBalance(ethers.formatEther(bal));
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ padding: "20px" }}>
+      <h2>Base Activity Tracker</h2>
+
+      <button onClick={connectWallet}>Connect Wallet</button>
+
+      <p><b>Account:</b> {account}</p>
+      <p><b>Balance:</b> {balance} ETH</p>
     </div>
   );
 }
