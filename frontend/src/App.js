@@ -4,8 +4,8 @@ import { ethers } from "ethers";
 function App() {
   const [account, setAccount] = useState("");
   const [balance, setBalance] = useState("");
+  const [txs, setTxs] = useState([]);
 
-  // Connect wallet
   const connectWallet = async () => {
     if (!window.ethereum) {
       alert("Install MetaMask");
@@ -16,12 +16,28 @@ function App() {
       method: "eth_requestAccounts",
     });
 
-    setAccount(accounts[0]);
+    const user = accounts[0];
+    setAccount(user);
 
-    // Get balance
     const provider = new ethers.BrowserProvider(window.ethereum);
-    const bal = await provider.getBalance(accounts[0]);
+    const bal = await provider.getBalance(user);
     setBalance(ethers.formatEther(bal));
+
+    // Fetch transactions
+    fetchTxs(user);
+  };
+
+  const fetchTxs = async (address) => {
+    const API_KEY = "YOUR_API_KEY";
+
+    const url = `https://api-sepolia.basescan.org/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=desc&apikey=${API_KEY}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.status === "1") {
+      setTxs(data.result.slice(0, 5)); // last 5 txs
+    }
   };
 
   return (
@@ -32,42 +48,17 @@ function App() {
 
       <p><b>Account:</b> {account}</p>
       <p><b>Balance:</b> {balance} ETH</p>
+
+      <h3>Recent Transactions</h3>
+
+      {txs.map((tx, i) => (
+        <div key={i} style={{ marginBottom: "10px" }}>
+          <p>Hash: {tx.hash.slice(0, 10)}...</p>
+          <p>Value: {ethers.formatEther(tx.value)} ETH</p>
+        </div>
+      ))}
     </div>
   );
 }
 
-export default App;// tweak 04/20/2026 21:53:00
-// tweak 04/20/2026 21:53:06
-// tweak 04/20/2026 21:53:10
-// tweak 04/20/2026 21:53:15
-// tweak 04/20/2026 21:53:20
-// tweak 04/20/2026 21:53:25
-// tweak 04/20/2026 21:53:39
-// tweak 04/20/2026 21:53:45
-// tweak 04/20/2026 21:53:59
-// tweak 04/20/2026 21:54:10
-// tweak 04/20/2026 21:54:14
-// tweak 04/20/2026 21:54:18
-// tweak 04/20/2026 21:54:22
-// tweak 04/20/2026 21:54:25
-// tweak 04/20/2026 21:54:30
-// tweak 04/21/2026 22:46:46
-// tweak 04/21/2026 22:46:50
-// tweak 04/21/2026 22:47:50
-// tweak 04/21/2026 22:47:56
-// tweak 04/21/2026 22:48:01
-// tweak 04/21/2026 22:48:06
-// tweak 04/21/2026 22:48:27
-// tweak 04/21/2026 22:48:32
-// tweak 04/21/2026 22:48:37
-// tweak 04/21/2026 22:48:44
-// tweak 04/21/2026 22:48:53
-// tweak 04/21/2026 22:49:07
-// tweak 04/21/2026 22:50:10
-// tweak 04/21/2026 22:50:19
-// tweak 04/21/2026 22:50:27
-// tweak 04/21/2026 22:50:33
-// tweak 04/21/2026 22:50:48
-// tweak 04/21/2026 22:50:55
-// tweak 04/21/2026 22:51:06
-// tweak 04/21/2026 22:53:07
+export default App;
