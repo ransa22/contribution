@@ -7,11 +7,6 @@ function App() {
   const [txs, setTxs] = useState([]);
 
   const connectWallet = async () => {
-    if (!window.ethereum) {
-      alert("Install MetaMask");
-      return;
-    }
-
     const accounts = await window.ethereum.request({
       method: "eth_requestAccounts",
     });
@@ -22,41 +17,36 @@ function App() {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const bal = await provider.getBalance(user);
     setBalance(ethers.formatEther(bal));
-
-    // Fetch transactions
-    fetchTxs(user);
-  };
-
-  const fetchTxs = async (address) => {
-    const API_KEY = "YOUR_API_KEY";
-
-    const url = `https://api-sepolia.basescan.org/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=desc&apikey=${API_KEY}`;
-
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (data.status === "1") {
-      setTxs(data.result.slice(0, 5)); // last 5 txs
-    }
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Base Activity Tracker</h2>
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center p-6">
+      <h1 className="text-3xl font-bold mb-6">🚀 Base Activity Tracker</h1>
 
-      <button onClick={connectWallet}>Connect Wallet</button>
+      <button
+        onClick={connectWallet}
+        className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg mb-4"
+      >
+        Connect Wallet
+      </button>
 
-      <p><b>Account:</b> {account}</p>
-      <p><b>Balance:</b> {balance} ETH</p>
+      {account && (
+        <div className="bg-gray-800 p-4 rounded-xl w-full max-w-md">
+          <p className="text-sm text-gray-400">Wallet</p>
+          <p className="break-all">{account}</p>
 
-      <h3>Recent Transactions</h3>
-
-      {txs.map((tx, i) => (
-        <div key={i} style={{ marginBottom: "10px" }}>
-          <p>Hash: {tx.hash.slice(0, 10)}...</p>
-          <p>Value: {ethers.formatEther(tx.value)} ETH</p>
+          <p className="mt-4 text-sm text-gray-400">Balance</p>
+          <p>{balance} ETH</p>
         </div>
-      ))}
+      )}
+
+      <div className="mt-6 w-full max-w-md">
+        <h2 className="text-xl mb-3">Recent Transactions</h2>
+
+        {txs.length === 0 && (
+          <p className="text-gray-400">No transactions yet</p>
+        )}
+      </div>
     </div>
   );
 }
